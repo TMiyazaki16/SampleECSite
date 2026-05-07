@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "products": "Products",
+    "cart": "Cart",
+    "orderHistory": "Order History",
+    "logout": "Logout"
+  },
+  "auth": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "loginError": "Invalid email or password",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "hint": "Test: test{'@'}example.com / password123"
+  },
+  "product": {
+    "title": "Products",
+    "detail": "Product Detail",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "price": "Price",
+    "stock": "Stock",
+    "category": "Category",
+    "allCategories": "All",
+    "units": "units",
+    "backToList": "Back to List",
+    "notFound": "Product not found"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "items": "Items",
+    "remove": "Remove",
+    "proceed": "Proceed to Order",
+    "continueShopping": "Continue Shopping"
+  },
+  "order": {
+    "confirm": "Order Confirmation",
+    "place": "Place Order",
+    "placing": "Placing order...",
+    "success": "Thank you for your order!",
+    "successMessage": "Your order has been confirmed. You can check it in your order history.",
+    "history": "Order History",
+    "historyEmpty": "No orders found",
+    "orderId": "Order ID",
+    "orderDate": "Date",
+    "status": "Status",
+    "total": "Total",
+    "viewHistory": "View Order History",
+    "backToProducts": "Back to Products",
+    "statusLabels": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "delivered": "Delivered"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email address",
+    "passwordMinLength": "Password must be at least 8 characters"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "close": "Close",
+    "yen": "¥",
+    "quantity": "Qty"
+  }
+}

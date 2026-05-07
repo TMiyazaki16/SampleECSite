@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "products": "商品一覧",
+    "cart": "カート",
+    "orderHistory": "注文履歴",
+    "logout": "ログアウト"
+  },
+  "auth": {
+    "title": "ログイン",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "loginButton": "ログイン",
+    "loggingIn": "ログイン中...",
+    "loginError": "メールアドレスまたはパスワードが正しくありません",
+    "logoutConfirm": "ログアウトしますか？",
+    "hint": "テスト用: test{'@'}example.com / password123"
+  },
+  "product": {
+    "title": "商品一覧",
+    "detail": "商品詳細",
+    "addToCart": "カートに追加",
+    "outOfStock": "在庫なし",
+    "price": "価格",
+    "stock": "在庫",
+    "category": "カテゴリ",
+    "allCategories": "すべて",
+    "units": "個",
+    "backToList": "一覧に戻る",
+    "notFound": "商品が見つかりません"
+  },
+  "cart": {
+    "title": "カート",
+    "empty": "カートに商品がありません",
+    "total": "合計",
+    "items": "商品数",
+    "remove": "削除",
+    "proceed": "注文確認へ",
+    "continueShopping": "買い物を続ける"
+  },
+  "order": {
+    "confirm": "注文確認",
+    "place": "注文する",
+    "placing": "注文中...",
+    "success": "ご注文ありがとうございました",
+    "successMessage": "注文が確定しました。注文履歴からご確認いただけます。",
+    "history": "注文履歴",
+    "historyEmpty": "注文履歴がありません",
+    "orderId": "注文番号",
+    "orderDate": "注文日",
+    "status": "ステータス",
+    "total": "合計金額",
+    "viewHistory": "注文履歴を見る",
+    "backToProducts": "商品一覧に戻る",
+    "statusLabels": {
+      "pending": "処理中",
+      "confirmed": "確定",
+      "shipped": "発送済み",
+      "delivered": "配達完了"
+    }
+  },
+  "validation": {
+    "required": "必須項目です",
+    "invalidEmail": "正しいメールアドレスを入力してください",
+    "passwordMinLength": "パスワードは8文字以上で入力してください"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "retry": "再試行",
+    "yes": "はい",
+    "no": "いいえ",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "yen": "円",
+    "quantity": "数量"
+  }
+}
