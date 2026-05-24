@@ -1,10 +1,16 @@
 import { axiosInstance } from './axiosInstance'
-import type { Order, OrderItem } from '@/types/order'
+import type { Order } from '@/types/order'
+
+// なぜ productId + quantity だけ送るか:
+// フルオブジェクトの送信は冗長かつ改ざんリスクがある。
+// totalPrice はサーバー側で再計算、buyerId は JWT から取得するため不要。
+export interface OrderItemPayload {
+  productId: string
+  quantity: number
+}
 
 export interface CreateOrderPayload {
-  items: OrderItem[]
-  totalPrice: number
-  buyerId: string
+  items: OrderItemPayload[]
 }
 
 export const orderApi = {
