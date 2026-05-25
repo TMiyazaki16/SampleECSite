@@ -7,8 +7,9 @@ import { vuetify } from './plugins/vuetify'
 
 // なぜ MSW を条件付きで初期化するか:
 // Service Worker は本番ビルドには不要（実際の API を呼ぶ）。
-// DEV 条件で動的 import することで、本番バンドルから MSW が
-// ツリーシェイクされ、バンドルサイズを増やさない。
+// mock モード（npm run mock）時のみ起動し、backend モード（npm run dev）では起動しない。
+// DEV && MODE==='development' 条件で動的 import することで、本番バンドルおよび
+// backend モードのバンドルから MSW がツリーシェイクされ、バンドルサイズを増やさない。
 
 // なぜ await worker.start() してから app.mount() するか:
 // Service Worker の登録完了前に Vue が mount されると、
@@ -16,7 +17,7 @@ import { vuetify } from './plugins/vuetify'
 // MSW を素通りして 404 になる。await で順序を保証する。
 
 async function bootstrap() {
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV && import.meta.env.MODE === 'development') {
     const { worker } = await import('./mocks/browser')
     await worker.start({
       onUnhandledRequest: 'warn',
