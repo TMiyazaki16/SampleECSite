@@ -11,8 +11,17 @@ const router = useRouter()
 
 const showLogoutDialog = ref(false)
 
-onMounted(async () => {
-  await authService.restoreSession()
+// なぜ onMounted での restoreSession をやめたか:
+// onMounted は初回ナビゲーションのガードより後に走るため、
+// ガードが「未認証」と誤判定してログイン画面へ飛ばしていた。
+// 復元は router/guards.ts の beforeEach 先頭で待たれるようになった。
+
+// なぜ router.isReady() を待つか:
+// 初回ナビゲーションはセッション復元（/auth/me）の完了を待つため、
+// その間 RouterView は何も描画しない。空白画面のちらつきを防ぐ。
+const routerReady = ref(false)
+router.isReady().then(() => {
+  routerReady.value = true
 })
 
 function toggleLocale() {
@@ -78,7 +87,11 @@ async function handleLogout() {
 
     <!-- メインコンテンツ -->
     <v-main>
-      <RouterView />
+      <!-- セッション復元中のスプラッシュ -->
+      <div v-if="!routerReady" class="d-flex justify-center align-center" style="height: 100vh">
+        <v-progress-circular indeterminate color="primary" size="48" />
+      </div>
+      <RouterView v-else />
     </v-main>
 
     <!-- ログアウト確認ダイアログ

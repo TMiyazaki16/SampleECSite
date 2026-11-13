@@ -28,9 +28,17 @@ axiosInstance.interceptors.request.use((reqConfig) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
+    // なぜ /auth/me を除外するか:
+    // セッション復元は「トークンが有効か確かめる」処理であり、
+    // 401 は想定内の結果。ここで window.location による強制遷移を
+    // 行うとページ全体がリロードされ、ルートガードが組み立てた
+    // ?redirect= が失われる。復元失敗は authService 側で logout 済み。
+    const isSessionCheck = axios.isAxiosError(error) && error.config?.url === '/auth/me'
+
     if (
       axios.isAxiosError(error) &&
-      error.response?.status === 401
+      error.response?.status === 401 &&
+      !isSessionCheck
     ) {
       localStorage.removeItem('token')
       // router は循環 import を避けるため window.location で遷移

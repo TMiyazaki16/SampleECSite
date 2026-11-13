@@ -36,8 +36,11 @@ export const authHandlers = [
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
     // トークンから user-id を取り出す（mock 用の簡易実装）
-    const userId = auth.replace('Bearer mock-token-', '').split('-')[0]
-    const user = mockUsers.find(u => u.id === `user-${userId}`)
+    // トークン形式は `mock-token-<user.id>-<発行時刻>`。
+    // user.id 自体が 'user-1' のようにハイフンを含むため、
+    // 末尾の発行時刻だけを取り除く。
+    const userId = auth.replace('Bearer mock-token-', '').replace(/-\d+$/, '')
+    const user = mockUsers.find(u => u.id === userId)
     if (!user) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
