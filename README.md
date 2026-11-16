@@ -205,11 +205,11 @@ npm run preview        # ビルド結果をローカルで確認
 
 ### 本番構成
 
-**Cloud Load Balancing + 独自ドメイン（`https://www.tmiyazaki-works.com`）を採用します。**
+**Cloud Load Balancing + 独自ドメイン（`https://sample-ec-site.tmiyazaki-works.com`）を採用します。**
 ルーティングは**パスベース**とし、フロントエンドと API を同一オリジンで配信します。
 
 ```
-              https://www.tmiyazaki-works.com
+        https://sample-ec-site.tmiyazaki-works.com
                             │
                ┌────────────▼────────────┐
                │  Cloud Load Balancing   │
@@ -279,12 +279,14 @@ VITE_API_BASE_URL=/api
 そのため `/cart` などのパスを直接開く・リロードすると、Cloud Storage は該当オブジェクトを探して
 **404 を返します**。
 
-LB 構成では、カスタムエラーレスポンスポリシーで 404 時に `/index.html` を **200** で返すよう
-設定してください。
+これに対応するため、LB のカスタムエラーレスポンスポリシーで 404 時に `/index.html` を
+**200** で返す設定を入れています。この設定は `sample-ec-infra` の Terraform
+（`modules/lb`）が管理しており、本リポジトリから設定する必要はありません。
 
-> **適用範囲に注意**: このポリシーは**バケット側のパスマッチャ（`/*`）にのみ**適用してください。
+> **適用範囲に注意**: このポリシーは**バケット側（`/*`）にのみ**適用しています。
 > `/api/*` にも適用すると、バックエンドが返す 404 が `index.html`（200）に置き換わり、
-> API のエラーハンドリングが壊れます。
+> API のエラーハンドリングが壊れます。`/api/*` の `path_rule` にはポリシーを付けていません。
+> 挙動を変える場合は `sample-ec-infra` 側を修正してください。
 
 （参考）バケットを直接配信する構成を採る場合は、404 ページに `index.html` を割り当てることで
 画面は描画されますが、HTTP ステータスは 404 のまま返ります。
