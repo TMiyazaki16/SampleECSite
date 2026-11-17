@@ -1,0 +1,93 @@
+# フロントエンド（Vite ビルド成果物）を Cloud Storage へデプロイする。
+#
+# 認証は Workload Identity Federation（サービスアカウント借用方式）。
+# サービスアカウントキー（JSON）はこのリポジトリに置かない・作らない。
+#
+# 必要な GitHub 変数（Settings → Secrets and variables → Actions → Variables）:
+#   GCP_WIF_PROVIDER : Workload Identity Provider のリソース名
+#   GCP_DEPLOY_SA    : デプロイ用サービスアカウントのメールアドレス
+name: Deploy frontend to Cloud Storage
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# OIDC トークンの発行に id-token: write が必須。
+# 無いと google-github-actions/auth が認証に失敗する。
+permissions:
+  id-token: write
+  contents: read
+
+# 同時実行すると rsync 同士が競合するため、main のデプロイは 1 本に直列化する。
+# 実行中のデプロイは中断しない（中途半端な状態でバケットを残さない）。
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
+env:
+  BUCKET: gs://tmiyazaki-works-frontend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # .nvmrc / package.json の engines が無いため、ローカル開発環境に合わせて 24 を指定。
+          # Vite 8 / TypeScript 6 の要求（Node 20.19+ / 22.12+）も満たす。
+          node-version: '24'
+          cache: npm
+
+      # package-lock.json に完全一致させるため npm install ではなく npm ci を使う。
+      - name: Install dependencies
+        run: npm ci
+
+      # VITE_API_BASE_URL=/api は .env.production で管理されているため、
+      # ここでは環境変数を渡さない（二重管理を避ける）。
+      - name: Build
+        run: npm run build
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      # dist/ をバケット直下へ同期する。
+      # --delete-unmatched-destination-objects で、バケット側にだけ残っている
+      # 古いファイル（過去ビルドのハッシュ付き assets など）を削除する。
+      # 既定の Cache-Control は no-cache。ハッシュ付きファイルの長期キャッシュは次ステップで上書きする。
+      #
+      # 注意: rsync はバケットのメタデータ取得（storage.buckets.get）を要求する場合がある。
+      # デプロイ用 SA は対象バケットの roles/storage.objectAdmin のみのため、
+      # ここで 403 になる可能性がある。その場合は infra 側（sample-ec-infra）で権限調整が必要。
+      - name: Sync dist/ to bucket
+        run: |
+          gcloud storage rsync dist "$BUCKET" \
+            --recursive \
+            --delete-unmatched-destination-objects \
+            --cache-control="no-cache, max-age=0"
+
+      # ファイル名にハッシュが付く assets/ 配下は内容が変われば名前も変わるため、長期キャッシュ可。
+      # rsync は内容が変わらないファイルを再アップロードしないので、
+      # 毎回メタデータを明示的に設定し直して状態を確定させる。
+      - name: Set long cache for hashed assets
+        run: |
+          gcloud storage objects update "$BUCKET/assets/**" \
+            --cache-control="public, max-age=31536000, immutable"
+
+      # index.html はファイル名が固定なので、キャッシュされると
+      # デプロイ後も古い画面が表示され続ける。必ず no-cache にする。
+      # （このバケットは CDN を使っておらず、ブラウザキャッシュのみが効く）
+      - name: Set no-cache for index.html
+        run: |
+          gcloud storage objects update "$BUCKET/index.html" \
+            --cache-control="no-cache, max-age=0"
