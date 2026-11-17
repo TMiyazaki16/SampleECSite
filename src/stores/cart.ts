@@ -17,21 +17,32 @@ const STORAGE_KEY = 'sample_ec_cart'
 // localStorage の中身はユーザーが編集でき、アプリのバージョン差でも
 // 形が変わりうる。JSON として妥当でも CartItem とは限らないため、
 // 復元時に形を検証して不正なものは捨てる。
+function isProduct(value: unknown): value is Product {
+  if (typeof value !== 'object' || value === null) return false
+  const p = value as Record<string, unknown>
+  return (
+    typeof p.id === 'string' &&
+    typeof p.name === 'string' &&
+    typeof p.description === 'string' &&
+    typeof p.price === 'number' &&
+    Number.isFinite(p.price) &&
+    (p.currency === 'JPY' || p.currency === 'USD') &&
+    typeof p.stock === 'number' &&
+    Number.isFinite(p.stock) &&
+    typeof p.category === 'string' &&
+    typeof p.imageUrl === 'string'
+  )
+}
+
 function isCartItem(value: unknown): value is CartItem {
   if (typeof value !== 'object' || value === null) return false
   const item = value as Record<string, unknown>
   if (typeof item.quantity !== 'number' || !Number.isFinite(item.quantity) || item.quantity <= 0) {
     return false
   }
-  const product = item.product
-  if (typeof product !== 'object' || product === null) return false
-  const p = product as Record<string, unknown>
-  return (
-    typeof p.id === 'string' &&
-    typeof p.name === 'string' &&
-    typeof p.price === 'number' &&
-    Number.isFinite(p.price)
-  )
+  // Product のフィールドが一つでも欠けていると表示側（通貨フォーマット等）で
+  // 例外になるため、必須フィールドをすべて検証する
+  return isProduct(item.product)
 }
 
 function loadItems(): CartItem[] {
